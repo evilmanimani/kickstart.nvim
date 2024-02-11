@@ -8,18 +8,17 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
   command = "EslintFixAll"
 })
 vim.g.neovide_transparency = 0.95
-vim.g.neovide_cursor_animate_command_line = false
 vim.g.neovide_scale_factor = 0.95
+vim.g.neovide_cursor_animate_command_line = false
 vim.g.neovide_fullscreen = true
 vim.g.neovide_cursor_vfx_mode = ""
 vim.o.guifont = "FiraCode Nerd Font:h12"
 vim.o.shell = "powershell"
 vim.g.miniindentscope_disable = true
 vim.g.neovide_cursor_trail_size = 0.25
-vim.o.showtabline = 0
+vim.o.relativenumber = true
 -- vim.o.softtabstop = 2
 -- vim.o.shiftwidth = 2
-vim.o.relativenumber = true
 -- vim.opt.signcolumn = "number"
 local vk = vim.keymap.set
 
@@ -71,48 +70,44 @@ local root_augroup = vim.api.nvim_create_augroup('MyAutoRoot', {})
 vim.api.nvim_create_autocmd('BufEnter', { group = root_augroup, callback = set_root })
 
 -- Allow clipboard copy paste in neovim
-vim.api.nvim_set_keymap("", "<C-v>", "+p<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("!", "<D-v>", "<C-R>+", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("t", "<D-v>", "<C-R>+", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("v", "<D-v>", "<C-R>+", { noremap = true, silent = true })
+-- vim.api.nvim_set_keymap("", "<C-v>", "+p<CR>", { noremap = true, silent = true })
+-- vim.api.nvim_set_keymap("!", "<D-v>", "<C-R>+", { noremap = true, silent = true })
+-- vim.api.nvim_set_keymap("t", "<D-v>", "<C-R>+", { noremap = true, silent = true })
+-- vim.api.nvim_set_keymap("v", "<D-v>", "<C-R>+", { noremap = true, silent = true })
 
--- vk("v", "J", ":m '>+1<cr>gv=gv", { desc = "Move selected down" })
--- vk("v", "K", ":m '<-2<cr>gv=gv", { desc = "Move selected up" })
-vk("n", "<C-p>", "<cmd>Telescope find_files<cr>", { desc = "Find files" })
+vk("n", "<C-p>", "<cmd>Telescope find_files<cr>", { desc = "find files" })
 -- vk("n", "<C-A-o>", "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>", { desc = "Find symbols" })
 vk("i", "jj", "<esc>", { desc = "<ESC>" })
 vk(
   "n",
   "<leader>e",
   "<cmd>lua require('mini.files').open(vim.api.nvim_buf_get_name(0), false)<cr>",
-  { desc = "[E]xplore mini.files" }
+  { desc = "[e]xplore mini.files" }
 )
 -- vk("n", "<C-a>", "za", { desc = "Toggle fold" })
-vk("n", "<leader>pj", "<cmd>pu<cr>", { desc = "Paste below" })
-vk("n", "<leader>pk", "<cmd>pu!<cr>", { desc = "Paste above" })
-vk("n", "<leader>pp", "$p", { desc = "Paste at end of line" })
-vk("n", "<leader>?", "<cmd>Telescope oldfiles<cr>", { desc = "Recent files" })
-vk("n", "<leader>s?", "<cmd>Cheatsheet<cr>", { desc = "Cheatsheet" })
-vk("n", "<leader>m", "<cmd>messages<cr>", { desc = "Show messages" })
+vk("n", "<leader>pj", "<cmd>pu<cr>", { desc = "paste below" })
+vk("n", "<leader>pk", "<cmd>pu!<cr>", { desc = "paste above" })
+vk("n", "<leader>pp", "$p", { desc = "paste at end of line" })
+vk("n", "<leader>?", "<cmd>Telescope oldfiles<cr>", { desc = "recent files" })
+vk("n", "<leader>s?", "<cmd>Cheatsheet<cr>", { desc = "cheatsheet" })
+vk("n", "<leader>m", "<cmd>messages<cr>", { desc = "show [m]essages" })
 -- vk("n", "<C-l>", "<cmd>LspStop<cr>")
-vk("v", "<F2>", "<cmd>'<,'>w !node<cr>", { desc = "Execute selection in Node" })
+vk("v", "<F2>", "<cmd>'<,'>w !node<cr>", { desc = "execute selection in node" })
 vk("n", "<C-d>", "<C-d>zz")
 vk("n", "<C-u>", "<C-u>zz")
 vk("n", "<C-u>", "<C-u>zz")
 vk("x", "<leader>p", [["_dP]])
-vk("n", "<leader>-", "<C-W>s", { desc = "Split window below", remap = true })
-vk("n", "<leader>|", "<C-W>v", { desc = "Split window right", remap = true })
-vk("n", "<leader>l", "<cmd>Lazy<cr>", { desc = "Lazy" })
---keywordprg
-vk("n", "<leader>K", "<cmd>norm! K<cr>", { desc = "Keywordprg" })
+vk("n", "<leader>-", "<C-W>s", { desc = "split window below", remap = true })
+vk("n", "<leader>|", "<C-W>v", { desc = "split window right", remap = true })
+vk("n", "<leader>l", "<cmd>Lazy<cr>", { desc = "[l]azy" })
 -- Clear search with <esc>
-vk({ "i", "n" }, "<esc>", "<cmd>noh<cr><esc>", { desc = "Escape and clear hlsearch" })
+vk({ "i", "n" }, "<esc>", "<cmd>noh<cr><esc>", { desc = "escape and clear hlsearch" })
 -- buffers
-vk("n", "<leader>`", "<cmd>e #<cr>", { desc = "Switch to Other Buffer" })
-vk("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Prev buffer" })
-vk("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next buffer" })
-vk("n", "[b", "<cmd>bprevious<cr>", { desc = "Prev buffer" })
-vk("n", "]b", "<cmd>bnext<cr>", { desc = "Next buffer" })
+vk("n", "<leader>`", "<cmd>e #<cr>", { desc = "switch to other buffer" })
+vk("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "prev buffer" })
+vk("n", "<S-l>", "<cmd>bnext<cr>", { desc = "next buffer" })
+vk("n", "[b", "<cmd>bprevious<cr>", { desc = "prev buffer" })
+vk("n", "]b", "<cmd>bnext<cr>", { desc = "next buffer" })
 -- better up/down
 vk({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 vk({ "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
@@ -131,8 +126,8 @@ vk("n", "<C-Left>", "<cmd>vertical resize -2<cr>", { desc = "Decrease window wid
 vk("n", "<C-Right>", "<cmd>vertical resize +2<cr>", { desc = "Increase window width" })
 
 require('which-key').register {
-  ['<leader>b'] = { name = '[B]uffer', _ = 'which_key_ignore' },
-  ['<leader>p'] = { name = '[P]aste', _ = 'which_key_ignore' },
+  ['<leader>b'] = { name = '[b]uffer', _ = 'which_key_ignore' },
+  ['<leader>p'] = { name = '[p]aste', _ = 'which_key_ignore' },
 }
 
 local  ilazy = { 
@@ -200,7 +195,6 @@ local  ilazy = {
   },
 }
 return {
-
   {
     "maxmx03/solarized.nvim",
     config = function()
@@ -237,6 +231,19 @@ return {
       require("mini.ai").setup({})
       require("mini.files").setup({})
       -- require("mini.notify").setup({})
+      require("mini.tabline").setup({})
+      require("mini.pairs").setup({})
+      require("mini.surround").setup({
+        mappings = {
+          add = "gsa", -- Add surrounding in Normal and Visual modes
+          delete = "gsd", -- Delete surrounding
+          find = "gsf", -- Find surrounding (to the right)
+          find_left = "gsF", -- Find surrounding (to the left)
+          highlight = "gsh", -- Highlight surrounding
+          replace = "gsr", -- Replace surrounding
+          update_n_lines = "gsn", -- Update `n_lines`
+        },
+      })
       require("mini.splitjoin").setup({})
       require("mini.align").setup({})
       require("mini.bracketed").setup({})
@@ -273,69 +280,6 @@ return {
       })
     end,
   },
-  {
-    "akinsho/bufferline.nvim",
-    keys = {
-      { "<leader>bp", "<Cmd>BufferLineTogglePin<CR>", desc = "Toggle pin" },
-      { "<leader>bP", "<Cmd>BufferLineGroupClose ungrouped<CR>", desc = "Delete non-pinned buffers" },
-      { "<leader>bo", "<Cmd>BufferLineCloseOthers<CR>", desc = "Delete other buffers" },
-      { "<leader>br", "<Cmd>BufferLineCloseRight<CR>", desc = "Delete buffers to the right" },
-      { "<leader>bl", "<Cmd>BufferLineCloseLeft<CR>", desc = "Delete buffers to the left" },
-      { "<S-h>", "<cmd>BufferLineCyclePrev<cr>", desc = "Prev buffer" },
-      { "<S-l>", "<cmd>BufferLineCycleNext<cr>", desc = "Next buffer" },
-      { "[b", "<cmd>BufferLineCyclePrev<cr>", desc = "Prev buffer" },
-      { "]b", "<cmd>BufferLineCycleNext<cr>", desc = "Next buffer" },
-    },
-    opts = {
-      options = {
-        -- stylua: ignore
-        close_command = function(n) require("mini.bufremove").delete(n, false) end,
-        -- stylua: ignore
-        right_mouse_command = function(n) require("mini.bufremove").delete(n, false) end,
-        diagnostics = "nvim_lsp",
-        always_show_bufferline = true,
-        diagnostics_indicator = function(_, _, diag)
-          local icons = ilazy.diagnostics
-          local ret = (diag.error and icons.Error .. diag.error .. " " or "")
-            .. (diag.warning and icons.Warn .. diag.warning or "")
-          return vim.trim(ret)
-        end,
-        offsets = {
-          {
-            filetype = "neo-tree",
-            text = "Neo-tree",
-            highlight = "Directory",
-            text_align = "left",
-          },
-        },
-      },
-    },
-    -- config = function(_, opts)
-    --   require("bufferline").setup(opts)
-    --   -- Fix bufferline when restoring a session
-    --   vim.api.nvim_create_autocmd("BufAdd", {
-    --     callback = function()
-    --       vim.schedule(function()
-    --         pcall(nvim_bufferline)
-    --       end)
-    --     end,
-    --   })
-    -- end,
-  },
-  -- {
-  --   "akinsho/bufferline.nvim",
-  --   config = function()
-  --
-  --     require("bufferline").setup({
-  --       options = {
-  --         style_preset = require("bufferline").style_preset.minimal, -- or bufferline.style_preset.minimal,
-  --         show_buffer_close_icons = false,
-  --         show_close_icon = false,
-  --         separator_style = "slant",
-  --       },
-  --     })
-  --   end
-  -- },
   -- Finds and lists all of the TODO, HACK, BUG, etc comment
   -- in your project and loads them into a browsable list.
   {
@@ -344,18 +288,18 @@ return {
     config = true,
     -- stylua: ignore
     keys = {
-      { "]t", function() require("todo-comments").jump_next() end, desc = "Next todo comment" },
-      { "[t", function() require("todo-comments").jump_prev() end, desc = "Previous todo comment" },
-      { "<leader>xt", "<cmd>TodoTrouble<cr>", desc = "Todo (Trouble)" },
-      { "<leader>xT", "<cmd>TodoTrouble keywords=TODO,FIX,FIXME<cr>", desc = "Todo/Fix/Fixme (Trouble)" },
-      { "<leader>st", "<cmd>TodoTelescope<cr>", desc = "Todo" },
-      { "<leader>sT", "<cmd>TodoTelescope keywords=TODO,FIX,FIXME<cr>", desc = "Todo/Fix/Fixme" },
+      { "]t", function() require("todo-comments").jump_next() end, desc = "next todo comment" },
+      { "[t", function() require("todo-comments").jump_prev() end, desc = "previous todo comment" },
+      { "<leader>xt", "<cmd>TodoTrouble<cr>", desc = "todo (trouble)" },
+      { "<leader>xT", "<cmd>TodoTrouble keywords=TODO,FIX,FIXME<cr>", desc = "todo/fix/fixme (trouble)" },
+      { "<leader>st", "<cmd>TodoTelescope<cr>", desc = "[s]earch [t]odo" },
+      { "<leader>sT", "<cmd>TodoTelescope keywords=TODO,FIX,FIXME<cr>", desc = "[s]earch labels=[T]odo/fix/fixme" },
     },
   },
   {
     "nvim-lualine/lualine.nvim",
     config = function()
-      local separator_style = "round"
+      local separator_style = "default"
       local solarized_palette = require("solarized.palette")
       local colors = solarized_palette.get_colors()
 
@@ -587,9 +531,33 @@ return {
         -- },
         extensions = {},
       })
+
+      local function copyHl(from, to, prop, remap, invert)
+        local hl = vim.api.nvim_get_hl(0, {name = from})
+        if prop then
+          if remap then
+            local hl2 = vim.api.nvim_get_hl(0, {name = to})
+            hl2[remap] = hl[prop]
+            if invert then hl2[prop] = hl[remap] end
+            if hl2.link then hl2.link = '' end
+            hl = hl2
+          else
+            hl = {[prop] = hl[prop]}
+          end
+          -- print(vim.inspect(hl) .. ' | ' .. remap)
+        end
+        vim.api.nvim_set_hl(0, to, hl)
+      end
+
+      -- recolor MiniTabline
+      copyHl('lualine_a_normal', 'MiniTablineCurrent')
+      copyHl('lualine_a_normal', 'MiniTablineVisible', 'bg', 'fg', true)
+      copyHl('lualine_a_insert', 'MiniTablineModifiedCurrent')
+      copyHl('lualine_a_insert', 'MiniTablineModifiedVisible', 'bg', 'fg', true)
+      copyHl('lualine_a_insert', 'MiniTablineModifiedHidden', 'bg', 'fg', true)
     end,
   },
- {
+  {
     "RRethy/vim-illuminate",
     opts = {
       delay = 200,
