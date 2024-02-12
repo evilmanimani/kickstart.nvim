@@ -3,6 +3,8 @@
 --
 -- See the kickstart.nvim README for more information
 
+local useTabline = true
+
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
   pattern = { "*.js", "*.ts" },
   command = "EslintFixAll"
@@ -17,9 +19,12 @@ vim.o.shell = "powershell"
 vim.g.miniindentscope_disable = true
 vim.g.neovide_cursor_trail_size = 0.25
 vim.o.relativenumber = true
+
+---- below isn't needed because of sleuth
 -- vim.o.softtabstop = 2
 -- vim.o.shiftwidth = 2
 -- vim.opt.signcolumn = "number"
+
 local vk = vim.keymap.set
 
 local change_scale_factor = function(delta)
@@ -200,10 +205,35 @@ return {
     config = function()
       vim.o.background = "dark"
       require('solarized').setup({
-        theme = "neo",
+        -- theme = "neo",
         palette = "solarized",
         -- palette = "selenized",
-        transparent = true,
+        transparent = false,
+        -- enables = {
+        --   bufferline = false,
+        --   cmp = false,
+        --   diagnostic = false,
+        --   dashboard = false,
+        --   gitsign = false,
+        --   editor = true,
+        --   hop = false,
+        --   indentblankline = false,
+        --   lsp = false,
+        --   lspsaga = false,
+        --   navic = false,
+        --   neogit = false,
+        --   neotree = false,
+        --   notify = false,
+        --   noice = false,
+        --   semantic = false,
+        --   syntax = false,
+        --   telescope = false,
+        --   tree = false,
+        --   treesitter = true,
+        --   todo = false,
+        --   whichkey = false,
+        --   mini = false,
+        -- },
       })
       vim.cmd("colo solarized")
     end
@@ -231,7 +261,9 @@ return {
       require("mini.ai").setup({})
       require("mini.files").setup({})
       -- require("mini.notify").setup({})
-      require("mini.tabline").setup({})
+      if useTabline then
+        require("mini.tabline").setup({})
+      end
       require("mini.pairs").setup({})
       require("mini.surround").setup({
         mappings = {
@@ -493,8 +525,7 @@ return {
           end,
         },
       })
-
-      require("lualine").setup({
+      local config = {
         options = {
           theme = custom_theme,
           component_separators = "",
@@ -513,24 +544,29 @@ return {
           lualine_y = {},
           lualine_z = { "location" },
         },
-        -- winbar = {
-        --   lualine_a = { "buffers" },
-        --   lualine_b = {},
-        --   lualine_c = {},
-        --   lualine_x = {},
-        --   lualine_y = {},
-        --   lualine_z = { "tabs" },
-        -- },
-        -- inactive_winbar = {
-        --   lualine_a = { "buffers" },
-        --   lualine_b = {},
-        --   lualine_c = {},
-        --   lualine_x = {},
-        --   lualine_y = {},
-        --   lualine_z = { "tabs" },
-        -- },
         extensions = {},
-      })
+      }
+
+      if not useTabline then
+        config.winbar = {
+          lualine_a = { "buffers" },
+          lualine_b = {},
+          lualine_c = {},
+          lualine_x = {},
+          lualine_y = {},
+          lualine_z = { "tabs" },
+        }
+        -- config.inactive_winbar = {
+        --   lualine_a = { "buffers" },
+        --   lualine_b = {},
+        --   lualine_c = {},
+        --   lualine_x = {},
+        --   lualine_y = {},
+        --   lualine_z = { "tabs" },
+        -- },
+      end
+
+      require("lualine").setup(config)
 
       local function copyHl(from, to, prop, remap, invert)
         local hl = vim.api.nvim_get_hl(0, {name = from})
