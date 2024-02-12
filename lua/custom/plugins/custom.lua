@@ -114,10 +114,10 @@ vk({ "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = 
 vk({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vk({ "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 -- Move to window using the <ctrl> hjkl keys
-vk("n", "<C-h>", "<C-w>h", { desc = "Go to left window", remap = true })
-vk("n", "<C-j>", "<C-w>j", { desc = "Go to lower window", remap = true })
-vk("n", "<C-k>", "<C-w>k", { desc = "Go to upper window", remap = true })
-vk("n", "<C-l>", "<C-w>l", { desc = "Go to right window", remap = true })
+vk("n", "<C-M-h>", "<C-w>h", { desc = "Go to left window", remap = true })
+vk("n", "<C-M-j>", "<C-w>j", { desc = "Go to lower window", remap = true })
+vk("n", "<C-M-k>", "<C-w>k", { desc = "Go to upper window", remap = true })
+vk("n", "<C-M-l>", "<C-w>l", { desc = "Go to right window", remap = true })
 
 -- Resize window using <ctrl> arrow keys
 vk("n", "<C-Up>", "<cmd>resize +2<cr>", { desc = "Increase window height" })
@@ -199,14 +199,14 @@ return {
     "maxmx03/solarized.nvim",
     config = function()
       vim.o.background = "dark"
+      require('solarized').setup({
+        theme = "neo",
+        palette = "solarized",
+        -- palette = "selenized",
+        transparent = true,
+      })
       vim.cmd("colo solarized")
-    end,
-    opts = {
-      theme = "neo",
-      palette = "solarized",
-      -- palette = "selenized",
-      transparent = false,
-    },
+    end
   },
   -- { "lukas-reineke/lsp-format.nvim" },
   {
