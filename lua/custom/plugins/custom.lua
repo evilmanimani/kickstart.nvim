@@ -101,17 +101,23 @@ vk('n', '<C-j>',
     local col= cPos[2]
     local line = api.nvim_get_current_line() -- returns focused line
     local indent = line:match('^(%s+)') or ''
+    -- line = line:gsub('^%s+', '')
     for _, v in ipairs(chars) do
-      col = line:find(v, col) or 0
-      if col > 0 then
-        api.nvim_set_current_line(line:sub(1, col+1))
-        api.nvim_buf_set_lines(0, row, row, false, { indent .. string.gsub(line:sub(col+1), '^%s+', '') })
+      local match = line:find(v, col) or 0
+      if match > 0 then
+        -- print(tostring(col) .. ': "' .. v .. '"')
+        local lineStart = line:sub(1, match)
+        print('"' .. lineStart .. '"')
+        api.nvim_set_current_line(lineStart)
+        api.nvim_buf_set_lines(0, row, row, false, { indent .. string.gsub(line:sub(match+1), '^%s+', '') })
+
         api.nvim_win_set_cursor(0, {row+1, indent:len() or 0})
         break
       end
     end
   end,
   { desc = "split line (at space)" })
+
 vk("n", "<leader>pj", "<cmd>pu<cr>", {desc = "pastebelow" })
 vk("n", "<leader>pk", "<cmd>pu!<cr>", { desc = "paste above" })
 vk("n", "<leader>pp", "$p", { desc = "paste at end of line" })
@@ -223,13 +229,6 @@ local  ilazy = {
 }
 return {
   -- { "lukas-reineke/lsp-format.nvim" },
-  {
-    "stevearc/oil.nvim",
-    config = function()
-      require("oil").setup({})
-      vk("n", "-", require("oil").open, { desc = "Open parent directory" })
-    end,
-  },
   {
     "folke/which-key.nvim",
     opts = {

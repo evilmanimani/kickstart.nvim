@@ -87,7 +87,7 @@ require('lazy').setup({
         -- palette = "selenized",
         -- transparent = true,
       })
-      vim.cmd("colo solarized")
+      vim.cmd[[colorscheme solarized]]
     end
   },
   -- {
@@ -326,7 +326,7 @@ require('lazy').setup({
         -- Set a style preset. 'dark' is default.
         style = 'dark', -- dark, darker, cool, deep, warm, warmer, light
       }
-      require('onedark').load()
+      -- require('onedark').load()
     end,
   },
 
