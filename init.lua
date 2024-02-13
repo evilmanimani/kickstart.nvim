@@ -66,6 +66,38 @@ vim.opt.rtp:prepend(lazypath)
 --  You can also configure plugins after the setup call,
 --    as they will be available in your neovim runtime.
 require('lazy').setup({
+  -- { "catppuccin/nvim",
+  --   name = "catppuccin", priority = 1000, config = function()
+  --     require('catppuccin').setup({
+  --       transparent_background = false,
+  --     })
+  --     -- vim.cmd.colorscheme = "catppuccin"
+  --
+  --   end 
+  -- },
+  {
+    "maxmx03/solarized.nvim",
+    lazy = false,
+    priority = 1000,
+    config = function()
+      vim.o.background = "dark"
+      require('solarized').setup({
+        theme = "neo",
+        palette = "solarized",
+        -- palette = "selenized",
+        -- transparent = true,
+      })
+      vim.cmd("colo solarized")
+    end
+  },
+  -- {
+  --   "Tsuzat/NeoSolarized.nvim",
+  --   lazy = false, -- make sure we load this during startup if it is your main colorscheme
+  --   priority = 1000, -- make sure to load this before all the other start plugins
+  --   config = function()
+  --     -- vim.cmd("colo NeoSolarized")
+  --   end
+  -- },
   -- NOTE: First, some plugins that don't require any configuration
 
   -- Git related plugins

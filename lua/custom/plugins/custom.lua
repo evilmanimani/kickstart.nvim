@@ -90,7 +90,29 @@ vk(
   { desc = "[e]xplore mini.files" }
 )
 -- vk("n", "<C-a>", "za", { desc = "Toggle fold" })
-vk("n", "<leader>pj", "<cmd>pu<cr>", { desc = "paste below" })
+
+-- split lines at next ';', ',' or space
+vk('n', '<C-j>',
+  function()
+    local chars = {';',',',' '}
+    local api = vim.api
+    local cPos = api.nvim_win_get_cursor(0)
+    local row = cPos[1]
+    local col= cPos[2]
+    local line = api.nvim_get_current_line() -- returns focused line
+    local indent = line:match('^(%s+)') or ''
+    for _, v in ipairs(chars) do
+      col = line:find(v, col) or 0
+      if col > 0 then
+        api.nvim_set_current_line(line:sub(1, col+1))
+        api.nvim_buf_set_lines(0, row, row, false, { indent .. string.gsub(line:sub(col+1), '^%s+', '') })
+        api.nvim_win_set_cursor(0, {row+1, indent:len() or 0})
+        break
+      end
+    end
+  end,
+  { desc = "split line (at space)" })
+vk("n", "<leader>pj", "<cmd>pu<cr>", {desc = "pastebelow" })
 vk("n", "<leader>pk", "<cmd>pu!<cr>", { desc = "paste above" })
 vk("n", "<leader>pp", "$p", { desc = "paste at end of line" })
 vk("n", "<leader>?", "<cmd>Telescope oldfiles<cr>", { desc = "recent files" })
@@ -200,44 +222,6 @@ local  ilazy = {
   },
 }
 return {
-  {
-    "maxmx03/solarized.nvim",
-    config = function()
-      vim.o.background = "dark"
-      require('solarized').setup({
-        -- theme = "neo",
-        palette = "solarized",
-        -- palette = "selenized",
-        transparent = false,
-        -- enables = {
-        --   bufferline = false,
-        --   cmp = false,
-        --   diagnostic = false,
-        --   dashboard = false,
-        --   gitsign = false,
-        --   editor = true,
-        --   hop = false,
-        --   indentblankline = false,
-        --   lsp = false,
-        --   lspsaga = false,
-        --   navic = false,
-        --   neogit = false,
-        --   neotree = false,
-        --   notify = false,
-        --   noice = false,
-        --   semantic = false,
-        --   syntax = false,
-        --   telescope = false,
-        --   tree = false,
-        --   treesitter = true,
-        --   todo = false,
-        --   whichkey = false,
-        --   mini = false,
-        -- },
-      })
-      vim.cmd("colo solarized")
-    end
-  },
   -- { "lukas-reineke/lsp-format.nvim" },
   {
     "stevearc/oil.nvim",
@@ -331,14 +315,14 @@ return {
   {
     "nvim-lualine/lualine.nvim",
     config = function()
-      local separator_style = "default"
+      local separator_style = "round"
       local solarized_palette = require("solarized.palette")
       local colors = solarized_palette.get_colors()
 
       local custom_theme = {
         normal = {
           a = { fg = colors.base03, bg = colors.blue },
-          b = { fg = colors.base02, bg = colors.base1 },
+          b = { fg = colors.base02, bg = colors.base01 },
           c = { fg = colors.base2, bg = colors.base03 },
         },
         insert = {
@@ -414,7 +398,7 @@ return {
         {
           "branch",
           icon = { icons.git, color = { fg = colors.magenta } },
-          -- cond = hide_in_width,
+          cond = hide_in_width,
         },
         {
           "diff",
@@ -435,7 +419,7 @@ return {
               }
             end
           end,
-          -- cond = hide_in_width,
+          cond = hide_in_width,
         },
       })
 
@@ -491,11 +475,11 @@ return {
             end
           end,
           separator = { left = icons[separator_style].left },
-          -- cond = hide_in_width,
+          cond = hide_in_width,
         },
         {
           "location",
-          -- cond = hide_in_width,
+          cond = hide_in_width,
         },
       })
 
@@ -527,7 +511,9 @@ return {
       })
       local config = {
         options = {
+          -- theme = 'NeoSolarized', -- custom_theme,
           theme = custom_theme,
+          -- theme = "catppuccin",
           component_separators = "",
           section_separators = { left = icons[separator_style].right, right = icons[separator_style].left },
           disabled_filetypes = { statusline = { "dashboard", "alpha", "starter", "NvimTree", "lazy", "neo-tree" } },
