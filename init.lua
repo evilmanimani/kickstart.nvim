@@ -1,3 +1,19 @@
+local isTransparent = true
+
+if vim.fn.has('wsl') == 1 then
+    vim.g.clipboard = {
+        name = 'WslClipboard',
+        copy = {
+            ['+'] = 'clip.exe',
+            ['*'] = 'clip.exe',
+        },
+        paste = {
+            ['+'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+            ['*'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+        },
+        cache_enabled = 0,
+    }
+end
 --[[
 
 =====================================================================
@@ -37,6 +53,7 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now :)
 --]]
 
+
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
@@ -75,6 +92,21 @@ require('lazy').setup({
   --
   --   end 
   -- },
+  -- {
+  --   "folke/tokyonight.nvim",
+  --   lazy = false,
+  --   priority = 1000,
+  --   opts = {},
+  --   config = function()
+  --     require("tokyonight").setup({
+  --       -- your configuration comes here
+  --       -- or leave it empty to use the default settings
+  --       style = "night", -- The theme comes in three styles, `storm`, `moon`, a darker variant `night` and `day`
+  --       light_style = "day", -- The theme is used when the background is set to light
+  --       transparent = isTransparent, -- Enable this to disable setting the background color
+  --     })
+  --   end
+  -- },
   {
     "maxmx03/solarized.nvim",
     lazy = false,
@@ -84,8 +116,8 @@ require('lazy').setup({
       require('solarized').setup({
         theme = "neo",
         palette = "solarized",
-        -- palette = "selenized",
-        -- transparent = true,
+        -- palfalseette = "selenized",
+        transparent = isTransparent,
       })
       vim.cmd[[colorscheme solarized]]
     end
@@ -94,8 +126,9 @@ require('lazy').setup({
   --   "Tsuzat/NeoSolarized.nvim",
   --   lazy = false, -- make sure we load this during startup if it is your main colorscheme
   --   priority = 1000, -- make sure to load this before all the other start plugins
+  --   transparent = true,
   --   config = function()
-  --     -- vim.cmd("colo NeoSolarized")
+  --     vim.cmd("colo NeoSolarized")
   --   end
   -- },
   -- NOTE: First, some plugins that don't require any configuration
@@ -204,7 +237,13 @@ require('lazy').setup({
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', opts = {} },
+      { 'j-hui/fidget.nvim', opts = {
+        notification = {
+          window = {
+            winblend = isTransparent and 0 or 10,
+          }
+        }
+      } },
 
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
@@ -316,19 +355,19 @@ require('lazy').setup({
     },
   },
 
-  {
-    -- Theme inspired by Atom
-    'navarasu/onedark.nvim',
-    priority = 1000,
-    lazy = false,
-    config = function()
-      require('onedark').setup {
-        -- Set a style preset. 'dark' is default.
-        style = 'dark', -- dark, darker, cool, deep, warm, warmer, light
-      }
-      -- require('onedark').load()
-    end,
-  },
+  -- {
+  --   -- Theme inspired by Atom
+  --   'navarasu/onedark.nvim',
+  --   priority = 1000,
+  --   lazy = false,
+  --   config = function()
+  --     require('onedark').setup {
+  --       -- Set a style preset. 'dark' is default.
+  --       style = 'dark', -- dark, darker, cool, deep, warm, warmer, light
+  --     }
+  --     -- require('onedark').load()
+  --   end,
+  -- },
 
   -- "gc" to comment visual regions/lines
   { 'numToStr/Comment.nvim', opts = {} },
@@ -337,6 +376,11 @@ require('lazy').setup({
   {
     'nvim-telescope/telescope.nvim',
     branch = '0.1.x',
+    opts = {
+      defaults = {
+        path_display = 'truncate'
+      }
+    },
     dependencies = {
       'nvim-lua/plenary.nvim',
       -- Fuzzy Finder Algorithm which requires local dependencies to be built.
@@ -361,6 +405,9 @@ require('lazy').setup({
       'nvim-treesitter/nvim-treesitter-textobjects',
     },
     build = ':TSUpdate',
+  },
+  {
+    'nvim-treesitter/playground'
   },
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
@@ -505,7 +552,8 @@ vim.keymap.set('n', '<leader><space>', require('telescope.builtin').git_files, {
 vim.keymap.set('n', '<leader>/', function()
   -- You can pass additional configuration to telescope to change theme, layout, etc.
   require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-    winblend = 10,
+    -- winblend = 10,
+    winblend = isTransparent and 0 or 10,
     previewer = false,
   })
 end, { desc = 'fuzzy search in current buffer' })

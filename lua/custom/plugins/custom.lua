@@ -9,15 +9,15 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
   pattern = { "*.js", "*.ts" },
   command = "EslintFixAll"
 })
-vim.g.neovide_transparency = 0.95
-vim.g.neovide_scale_factor = 0.95
-vim.g.neovide_cursor_animate_command_line = false
-vim.g.neovide_fullscreen = true
-vim.g.neovide_cursor_vfx_mode = ""
+-- vim.g.neovide_transparency = 0.95
+-- vim.g.neovide_scale_factor = 0.95
+-- vim.g.neovide_cursor_animate_command_line = false
+-- vim.g.neovide_fullscreen = true
+-- vim.g.neovide_cursor_vfx_mode = ""
+-- vim.g.neovide_cursor_trail_size = 0.25
 vim.o.guifont = "FiraCode Nerd Font:h12"
-vim.o.shell = "powershell"
+vim.o.shell = "zsh"
 vim.g.miniindentscope_disable = true
-vim.g.neovide_cursor_trail_size = 0.25
 vim.o.relativenumber = true
 
 ---- below isn't needed because of sleuth
@@ -27,21 +27,21 @@ vim.o.relativenumber = true
 
 local vk = vim.keymap.set
 
-local change_scale_factor = function(delta)
-  vim.g.neovide_scale_factor = vim.g.neovide_scale_factor * delta
-  vim.cmd("redraw!")
-end
-vk("n", "<C-=>", function()
-  change_scale_factor(1.11)
-end)
-vk("n", "<C-->", function()
-  change_scale_factor(1 / 1.11)
-end)
-if vim.g.neovide then
-  vk("n", "<F11>", function()
-    vim.g.neovide_fullscreen = not vim.g.neovide_fullscreen
-  end, { desc = "Toggle fullscreen" })
-end
+-- if vim.g.neovide then
+--   local change_scale_factor = function(delta)
+--     vim.g.neovide_scale_factor = vim.g.neovide_scale_factor * delta
+--     vim.cmd("redraw!")
+--   end
+--   vk("n", "<C-=>", function()
+--     change_scale_factor(1.11)
+--   end)
+--   vk("n", "<C-->", function()
+--     change_scale_factor(1 / 1.11)
+--   end)
+--   vk("n", "<F11>", function()
+--     vim.g.neovide_fullscreen = not vim.g.neovide_fullscreen
+--   end, { desc = "Toggle fullscreen" })
+-- end
 
 
 -- Automatically set root to path of current buffer
@@ -137,8 +137,8 @@ vk("n", "<leader>l", "<cmd>Lazy<cr>", { desc = "[l]azy" })
 vk({ "i", "n" }, "<esc>", "<cmd>noh<cr><esc>", { desc = "escape and clear hlsearch" })
 -- buffers
 vk("n", "<leader>`", "<cmd>e #<cr>", { desc = "switch to other buffer" })
-vk("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "prev buffer" })
-vk("n", "<S-l>", "<cmd>bnext<cr>", { desc = "next buffer" })
+-- vk("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "prev buffer" })
+-- vk("n", "<S-l>", "<cmd>bnext<cr>", { desc = "next buffer" })
 vk("n", "[b", "<cmd>bprevious<cr>", { desc = "prev buffer" })
 vk("n", "]b", "<cmd>bnext<cr>", { desc = "next buffer" })
 -- better up/down
@@ -236,6 +236,26 @@ return {
         ["<leader>p"] = { name = "+paste" },
       },
     }
+  },
+  {
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    ---@type Flash.Config
+    opts = {
+      modes = {
+        char = {
+          jump_labels = true,
+        }
+      }
+    },
+    -- stylua: ignore
+    keys = {
+      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
+      { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
+      { "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
+      { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
+      { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
+    },
   },
   {
     "echasnovski/mini.nvim",
