@@ -3,12 +3,11 @@
 --
 -- See the kickstart.nvim README for more information
 
-local useTabline = true
 
-vim.api.nvim_create_autocmd({ "BufWritePre" }, {
-  pattern = { "*.js", "*.ts" },
-  command = "EslintFixAll"
-})
+-- vim.api.nvim_create_autocmd({ "BufWritePre" }, {
+--   pattern = { "*.js", "*.ts" },
+--   command = "EslintFixAll"
+-- })
 -- vim.g.neovide_transparency = 0.95
 -- vim.g.neovide_scale_factor = 0.95
 -- vim.g.neovide_cursor_animate_command_line = false
@@ -94,40 +93,71 @@ vk(
 -- split lines at next ';', ',' or space
 vk('n', '<C-j>',
   function()
-    local chars = {';',',',' '}
+    local chars = { ';', ',', ' ' }
     local api = vim.api
     local cPos = api.nvim_win_get_cursor(0)
     local row = cPos[1]
-    local col= cPos[2]
+    local col = cPos[2]
     local line = api.nvim_get_current_line() -- returns focused line
     local indent = line:match('^(%s+)') or ''
-    -- line = line:gsub('^%s+', '')
-    for _, v in ipairs(chars) do
-      local match = line:find(v, col) or 0
-      if match > 0 then
-        -- print(tostring(col) .. ': "' .. v .. '"')
-        local lineStart = line:sub(1, match)
-        print('"' .. lineStart .. '"')
-        api.nvim_set_current_line(lineStart)
-        api.nvim_buf_set_lines(0, row, row, false, { indent .. string.gsub(line:sub(match+1), '^%s+', '') })
 
-        api.nvim_win_set_cursor(0, {row+1, indent:len() or 0})
-        break
+    local function splitLine(idx)
+      local lineStart = line:sub(1, idx)
+      local newLine = indent .. string.gsub(line:sub(idx + 1), '^%s+', '')
+      if newLine:match('^%s+$') then newLine = '' end
+      if lineStart:match('^%s+$') then lineStart = '' end
+      api.nvim_set_current_line(lineStart)
+      api.nvim_buf_set_lines(0, row, row, false, { newLine })
+      api.nvim_win_set_cursor(0, { row + 1, indent:len() or 0 })
+    end
+
+    local match = 0
+    for _, char in ipairs(chars) do
+      match = line:find(char, col + 1) or 0
+      if match > 0 then
+        splitLine(match)
+        return
       end
+    end
+
+    print(tostring(match))
+    if match == 0 then
+      splitLine(col)
     end
   end,
   { desc = "split line (at space)" })
 
-vk("n", "<leader>pj", "<cmd>pu<cr>", {desc = "pastebelow" })
+local function arraySome(array, callback)
+  for _, value in ipairs(array) do
+    if callback(value) then
+      return true
+    end
+  end
+  return false
+end
+
+local function matchJS()
+  return arraySome({ 'javascript', 'typescript' }, function(t)
+    return t == vim.bo.filetype
+  end)
+end
+
+vk("n", "<leader>pj", "<cmd>pu<cr>", { desc = "pastebelow" })
 vk("n", "<leader>pk", "<cmd>pu!<cr>", { desc = "paste above" })
 vk("n", "<leader>pp", "$p", { desc = "paste at end of line" })
 vk("n", "<leader>?", "<cmd>Telescope oldfiles<cr>", { desc = "recent files" })
-vk("n", "<leader>s?", "<cmd>Cheatsheet<cr>", { desc = "cheatsheet" })
+-- vk("n", "<leader>s?", "<cmd>Cheatsheet<cr>", { desc = "cheatsheet" })
 vk("n", "<leader>m", "<cmd>messages<cr>", { desc = "show [m]essages" })
--- vk("n", "<C-l>", "<cmd>LspStop<cr>")
-vk("v", "<F2>", "<cmd>'<,'>w !node<cr>", { desc = "execute selection in node" })
+vk("v", "<F2>", "<cmd>'<,'>w !node<cr>", { expr = matchJS(), desc = "execute selection in node" })
+vk("n", "<F2>", "<cmd>w !node<cr>", { expr = matchJS(), desc = "execute buffer in node" })
+local liveServerStarted = false
+vk("n", "<F10>", function()
+    if liveServerStarted then vim.cmd('KillLiveServerOnPort 3000') else vim.cmd('StartLiveServer') end
+    liveServerStarted = not liveServerStarted
+  end,
+  { desc = "toggle live-server" })
+-- vk("n", "<F9>", "<cmd>LiveServerStop<cr>", { desc = "stop live-server" })
 vk("n", "<C-d>", "<C-d>zz")
-vk("n", "<C-u>", "<C-u>zz")
 vk("n", "<C-u>", "<C-u>zz")
 vk("x", "<leader>p", [["_dP]])
 vk("n", "<leader>-", "<C-W>s", { desc = "split window below", remap = true })
@@ -163,71 +193,25 @@ require('which-key').register {
   ['<leader>p'] = { name = '[p]aste', _ = 'which_key_ignore' },
 }
 
-local  ilazy = { 
-  misc = {
-    dots = "󰇘",
-  },
-  dap = {
-    Stopped             = { "󰁕 ", "DiagnosticWarn", "DapStoppedLine" },
-    Breakpoint          = " ",
-    BreakpointCondition = " ",
-    BreakpointRejected  = { " ", "DiagnosticError" },
-    LogPoint            = ".>",
-  },
-  diagnostics = {
-    Error = " ",
-    Warn  = " ",
-    Hint  = " ",
-    Info  = " ",
-  },
-  git = {
-    added    = " ",
-    modified = " ",
-    removed  = " ",
-  },
-  kinds = {
-    Array         = " ",
-    Boolean       = "󰨙 ",
-    Class         = " ",
-    Codeium       = "󰘦 ",
-    Color         = " ",
-    Control       = " ",
-    Collapsed     = " ",
-    Constant      = "󰏿 ",
-    Constructor   = " ",
-    Copilot       = " ",
-    Enum          = " ",
-    EnumMember    = " ",
-    Event         = " ",
-    Field         = " ",
-    File          = " ",
-    Folder        = " ",
-    Function      = "󰊕 ",
-    Interface     = " ",
-    Key           = " ",
-    Keyword       = " ",
-    Method        = "󰊕 ",
-    Module        = " ",
-    Namespace     = "󰦮 ",
-    Null          = " ",
-    Number        = "󰎠 ",
-    Object        = " ",
-    Operator      = " ",
-    Package       = " ",
-    Property      = " ",
-    Reference     = " ",
-    Snippet       = " ",
-    String        = " ",
-    Struct        = "󰆼 ",
-    TabNine       = "󰏚 ",
-    Text          = " ",
-    TypeParameter = " ",
-    Unit          = " ",
-    Value         = " ",
-    Variable      = "󰀫 ",
-  },
-}
+-- options for vim.diagnostic.config()
+vim.diagnostic.config({
+  underline = true,
+  virtual_text = true,
+  update_in_insert = false,
+  severity_sort = false,
+  signs = true,
+})
+
+for type, icon in pairs(Ilazy.diagnostics) do
+  local hl = "DiagnosticSign" .. type
+  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+end
+
 return {
+  {
+    'stevearc/dressing.nvim',
+    opts = {},
+  },
   -- { "lukas-reineke/lsp-format.nvim" },
   {
     "folke/which-key.nvim",
@@ -237,6 +221,32 @@ return {
       },
     }
   },
+  { 'wolandark/vim-live-server' },
+  {
+    'numToStr/FTerm.nvim',
+    init = function()
+      vim.keymap.set('n', '<A-i>', '<CMD>lua require("FTerm").toggle()<CR>')
+      vim.keymap.set('t', '<A-i>', '<C-\\><C-n><CMD>lua require("FTerm").toggle()<CR>')
+    end
+  },
+  -- {
+  --   'turbio/bracey.vim'
+  -- },
+  -- {
+  --   "folke/noice.nvim",
+  --   event = "VeryLazy",
+  --   opts = {
+  --     -- add any options here
+  --   },
+  --   dependencies = {
+  --     -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
+  --     "MunifTanjim/nui.nvim",
+  --     -- OPTIONAL:
+  --     --   `nvim-notify` is only needed, if you want to use the notification view.
+  --     --   If not available, we use `mini` as the fallback
+  --     "rcarriga/nvim-notify",
+  --   }
+  -- },
   {
     "folke/flash.nvim",
     event = "VeryLazy",
@@ -250,38 +260,51 @@ return {
     },
     -- stylua: ignore
     keys = {
-      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
-      { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
-      { "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
-      { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
-      { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
+      { "s",     mode = { "n", "x", "o" }, function() require("flash").jump() end,              desc = "Flash" },
+      { "S",     mode = { "n", "x", "o" }, function() require("flash").treesitter() end,        desc = "Flash Treesitter" },
+      { "r",     mode = "o",               function() require("flash").remote() end,            desc = "Remote Flash" },
+      { "R",     mode = { "o", "x" },      function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
+      { "<c-s>", mode = { "c" },           function() require("flash").toggle() end,            desc = "Toggle Flash Search" },
     },
   },
   {
     "echasnovski/mini.nvim",
     version = false,
     init = function()
-      require("mini.ai").setup({})
-      require("mini.files").setup({})
+      require("mini.ai").setup()
+      -- local ai = require("mini.ai")
+      -- ai.setup({
+      --   n_lines = 500,
+      --   custom_textobjects = {
+      --     o = ai.gen_spec.treesitter({
+      --       a = { "@block.outer", "@conditional.outer", "@loop.outer" },
+      --       i = { "@block.inner", "@conditional.inner", "@loop.inner" },
+      --     }, {}),
+      --     f = ai.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }, {}),
+      --     c = ai.gen_spec.treesitter({ a = "@class.outer", i = "@class.inner" }, {}),
+      --     t = { "<([%p%w]-)%f[^<%w][^<>]->.-</%1>", "^<.->().*()</[^/]->$" },
+      --   },
+      -- })
+      require("mini.files").setup()
       -- require("mini.notify").setup({})
-      if useTabline then
-        require("mini.tabline").setup({})
+      if UseTabline then
+        require("mini.tabline").setup()
       end
-      require("mini.pairs").setup({})
+      require("mini.pairs").setup()
       require("mini.surround").setup({
         mappings = {
-          add = "gsa", -- Add surrounding in Normal and Visual modes
-          delete = "gsd", -- Delete surrounding
-          find = "gsf", -- Find surrounding (to the right)
-          find_left = "gsF", -- Find surrounding (to the left)
-          highlight = "gsh", -- Highlight surrounding
-          replace = "gsr", -- Replace surrounding
+          add = "gsa",            -- Add surrounding in Normal and Visual modes
+          delete = "gsd",         -- Delete surrounding
+          find = "gsf",           -- Find surrounding (to the right)
+          find_left = "gsF",      -- Find surrounding (to the left)
+          highlight = "gsh",      -- Highlight surrounding
+          replace = "gsr",        -- Replace surrounding
           update_n_lines = "gsn", -- Update `n_lines`
         },
       })
-      require("mini.splitjoin").setup({})
-      require("mini.align").setup({})
-      require("mini.bracketed").setup({})
+      require("mini.splitjoin").setup()
+      require("mini.align").setup()
+      require("mini.bracketed").setup()
       vk("n", "<leader>bd", function()
         local bd = require("mini.bufremove").delete
         if vim.bo.modified then
@@ -295,8 +318,8 @@ return {
         else
           bd(0)
         end
-      end, {desc = "Delete Buffer"})
-      vk("n", "<leader>bD", function() require("mini.bufremove").delete(0, true) end, {desc = "Delete Buffer (Force)"} )
+      end, { desc = "Delete Buffer" })
+      vk("n", "<leader>bD", function() require("mini.bufremove").delete(0, true) end, { desc = "Delete Buffer (Force)" })
       require("mini.bufremove").setup({})
       require("mini.move").setup({
         mappings = {
@@ -315,6 +338,56 @@ return {
       })
     end,
   },
+  {
+    "RRethy/vim-illuminate",
+    lazy = false,
+    opts = {
+      delay = 100,
+      -- large_file_cutoff = 2000,
+      -- large_file_overrides = {
+      --   providers = { "treesitter", "lsp" },
+      -- },
+    },
+    config = function(_, opts)
+      require("illuminate").configure(opts)
+      -- change the highlight style
+      vim.api.nvim_set_hl(0, "IlluminatedWordText", { link = "Visual" })
+      vim.api.nvim_set_hl(0, "IlluminatedWordRead", { link = "Visual" })
+      vim.api.nvim_set_hl(0, "IlluminatedWordWrite", { link = "Visual" })
+
+      --- auto update the highlight style on colorscheme change
+      vim.api.nvim_create_autocmd({ "ColorScheme" }, {
+        pattern = { "*" },
+        callback = function(ev)
+          vim.api.nvim_set_hl(0, "IlluminatedWordText", { link = "Visual" })
+          vim.api.nvim_set_hl(0, "IlluminatedWordRead", { link = "Visual" })
+          vim.api.nvim_set_hl(0, "IlluminatedWordWrite", { link = "Visual" })
+        end
+      })
+
+      local function map(key, dir, buffer)
+        vim.keymap.set("n", key, function()
+          require("illuminate")["goto_" .. dir .. "_reference"](false)
+        end, { desc = dir:sub(1, 1):upper() .. dir:sub(2) .. " Reference", buffer = buffer })
+      end
+
+      map("<c-]>", "next")
+      map("<c-[>", "prev")
+
+      -- also set it after loading ftplugins, since a lot overwrite [[ and ]]
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function()
+          local buffer = vim.api.nvim_get_current_buf()
+          map("<c-]>", "next", buffer)
+          map("<c-[>", "prev", buffer)
+        end,
+      })
+    end,
+    keys = {
+      { "<c-]>", desc = "Next Reference" },
+      { "<c-[>", desc = "Prev Reference" },
+    },
+  },
   -- Finds and lists all of the TODO, HACK, BUG, etc comment
   -- in your project and loads them into a browsable list.
   {
@@ -323,18 +396,18 @@ return {
     config = true,
     -- stylua: ignore
     keys = {
-      { "]t", function() require("todo-comments").jump_next() end, desc = "next todo comment" },
-      { "[t", function() require("todo-comments").jump_prev() end, desc = "previous todo comment" },
-      { "<leader>xt", "<cmd>TodoTrouble<cr>", desc = "todo (trouble)" },
-      { "<leader>xT", "<cmd>TodoTrouble keywords=TODO,FIX,FIXME<cr>", desc = "todo/fix/fixme (trouble)" },
-      { "<leader>st", "<cmd>TodoTelescope<cr>", desc = "[s]earch [t]odo" },
-      { "<leader>sT", "<cmd>TodoTelescope keywords=TODO,FIX,FIXME<cr>", desc = "[s]earch labels=[T]odo/fix/fixme" },
+      { "]t",         function() require("todo-comments").jump_next() end, desc = "next todo comment" },
+      { "[t",         function() require("todo-comments").jump_prev() end, desc = "previous todo comment" },
+      { "<leader>xt", "<cmd>TodoTrouble<cr>",                              desc = "todo (trouble)" },
+      { "<leader>xT", "<cmd>TodoTrouble keywords=TODO,FIX,FIXME<cr>",      desc = "todo/fix/fixme (trouble)" },
+      { "<leader>st", "<cmd>TodoTelescope<cr>",                            desc = "[s]earch [t]odo" },
+      { "<leader>sT", "<cmd>TodoTelescope keywords=TODO,FIX,FIXME<cr>",    desc = "[s]earch labels=[T]odo/fix/fixme" },
     },
   },
   {
     "nvim-lualine/lualine.nvim",
     config = function()
-      local separator_style = "round"
+      local separator_style = "default"
       local solarized_palette = require("solarized.palette")
       local colors = solarized_palette.get_colors()
 
@@ -357,7 +430,7 @@ return {
           a = { fg = colors.base03, bg = colors.red },
         },
         inactive = {
-          a = { fg = colors.base02, bg = colors.base1 },
+          a = { fg = colors.base02, bg = colors.base01 },
           b = { fg = colors.base2, bg = colors.base04 },
           c = { fg = colors.base04, bg = colors.base04 },
         },
@@ -374,7 +447,7 @@ return {
       local icons = {
         vim = "",
         git = "",
-        diff = { added = ilazy.git.added, modified = ilazy.git.modified, removed = ilazy.git.removed },
+        diff = { added = Ilazy.git.added, modified = Ilazy.git.modified, removed = Ilazy.git.removed },
         default = { left = "", right = " " },
         round = { left = "", right = "" },
         block = { left = "█", right = "█" },
@@ -445,7 +518,8 @@ return {
       local function fg(name)
         ---@type {foreground?:number}?
         ---@diagnostic disable-next-line: deprecated
-        local hl = vim.api.nvim_get_hl and vim.api.nvim_get_hl(0, { name = name }) or vim.api.nvim_get_hl_by_name(name, true)
+        local hl = vim.api.nvim_get_hl and vim.api.nvim_get_hl(0, { name = name }) or
+            vim.api.nvim_get_hl_by_name(name, true)
         ---@diagnostic disable-next-line: undefined-field
         local fg = hl and (hl.fg or hl.foreground)
         return fg and { fg = string.format("#%06x", fg) } or nil
@@ -507,7 +581,7 @@ return {
           function()
             local msg = "No Active Lsp"
             local buf_ft = vim.api.nvim_buf_get_option(0, "filetype")
-            local clients = vim.lsp.get_clients()
+            local clients = vim.lsp.get_active_clients()
             if next(clients) == nil then
               return msg
             end
@@ -536,9 +610,9 @@ return {
           component_separators = "",
           section_separators = { left = icons[separator_style].right, right = icons[separator_style].left },
           disabled_filetypes = { statusline = { "dashboard", "alpha", "starter", "NvimTree", "lazy", "neo-tree" } },
-          -- refresh = {
-          --   statusline = 1000,
-          -- },
+          refresh = {
+            statusline = 1000,
+          },
         },
         sections = sections,
         inactive_sections = {
@@ -552,7 +626,7 @@ return {
         extensions = {},
       }
 
-      if not useTabline then
+      if not UseTabline then
         config.winbar = {
           lualine_a = { "buffers" },
           lualine_b = {},
@@ -574,16 +648,16 @@ return {
       require("lualine").setup(config)
 
       local function copyHl(from, to, prop, remap, invert)
-        local hl = vim.api.nvim_get_hl(0, {name = from})
+        local hl = vim.api.nvim_get_hl(0, { name = from })
         if prop then
           if remap then
-            local hl2 = vim.api.nvim_get_hl(0, {name = to})
+            local hl2 = vim.api.nvim_get_hl(0, { name = to })
             hl2[remap] = hl[prop]
             if invert then hl2[prop] = hl[remap] end
             if hl2.link then hl2.link = '' end
             hl = hl2
           else
-            hl = {[prop] = hl[prop]}
+            hl = { [prop] = hl[prop] }
           end
           -- print(vim.inspect(hl) .. ' | ' .. remap)
         end
@@ -598,47 +672,11 @@ return {
       copyHl('lualine_a_insert', 'MiniTablineModifiedHidden', 'bg', 'fg', true)
     end,
   },
-  {
-    "RRethy/vim-illuminate",
-    opts = {
-      delay = 200,
-      large_file_cutoff = 2000,
-      large_file_overrides = {
-        providers = { "lsp" },
-      },
-    },
-    config = function(_, opts)
-      require("illuminate").configure(opts)
-
-      local function map(key, dir, buffer)
-        vim.keymap.set("n", key, function()
-          require("illuminate")["goto_" .. dir .. "_reference"](false)
-        end, { desc = dir:sub(1, 1):upper() .. dir:sub(2) .. " Reference", buffer = buffer })
-      end
-
-      map("]]", "next")
-      map("[[", "prev")
-
-      -- also set it after loading ftplugins, since a lot overwrite [[ and ]]
-      vim.api.nvim_create_autocmd("FileType", {
-        callback = function()
-          local buffer = vim.api.nvim_get_current_buf()
-          map("]]", "next", buffer)
-          map("[[", "prev", buffer)
-        end,
-      })
-    end,
-    keys = {
-      { "]]", desc = "Next Reference" },
-      { "[[", desc = "Prev Reference" },
-    },
-  },
-      -- signs = {
-      --   add = { text = "▎" },
-      --   change = { text = "▎" },
-      --   delete = { text = "" },
-      --   topdelete = { text = "" },
-      --   changedelete = { text = "▎" },
-      --   untracked = { text = "▎" },
-      -- },
+  -- signs = {
+  --   add = { text = "▎" },
+  --   change = { text = "▎" },
+  --   delete = { text = "" },
+  --   topdelete = { text = "" },
+  --   changedelete = { text = "▎" },
+  -- },
 }
