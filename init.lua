@@ -528,10 +528,6 @@ require('lazy').setup({
           theme = "cursor",
           previewer = false,
         },
-        lsp_dynamic_workspace_symbols = {
-          previewer = false,
-          theme = "dropdown",
-        }
       }
     },
     dependencies = {
